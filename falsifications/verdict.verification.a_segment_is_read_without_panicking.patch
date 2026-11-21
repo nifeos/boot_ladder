@@ -1,0 +1,23 @@
+Falsifies `boot_ladder::verdict::verification::a_segment_is_read_without_panicking`.
+
+The defect: the name list is returned without checking that it holds only plain names. A line whose
+list carries other bytes is then read as names a reader could mistake for the grammar.
+
+Expected to fail: the assertion that every byte of the returned names is plain.
+
+diff --git a/src/verdict.rs b/src/verdict.rs
+--- a/src/verdict.rs
++++ b/src/verdict.rs
+@@ -389,11 +389,7 @@
+     let rest = rest.strip_prefix(' ')?.strip_prefix(marker)?;
+     let end = rest.bytes().position(|b| b == b',').unwrap_or(rest.len());
+     // A check's name is `[a-z0-9_]`, so a list holds those and the spaces between them.
+-    let plain = |b: &u8| b.is_ascii_lowercase() || b.is_ascii_digit() || matches!(b, b'_' | b' ');
+-    rest.as_bytes()[..end]
+-        .iter()
+-        .all(plain)
+-        .then(|| (count, &rest[..end], &rest[end..]))
++    Some((count, &rest[..end], &rest[end..]))
+ }
+ 
+ #[cfg(test)]
