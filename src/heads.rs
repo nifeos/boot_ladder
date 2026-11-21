@@ -38,7 +38,7 @@ impl<'a> Heads<'a> {
     /// first light on a board where the console is the thing in doubt. Its tail is free text: a
     /// reader takes the architecture from [`machine`](Heads::machine)'s tail.
     ///
-    /// Deliberately generic across architectures: a recogniser that knew only one board's wording
+    /// Deliberately generic across architectures: a recognizer that knew only one board's wording
     /// would report a healthy board of another kind as never having booted.
     pub const fn banner(&self) -> Head<'a> {
         self.head(" on ")

@@ -1,5 +1,10 @@
 # boot_ladder
 
+[![check](https://github.com/nifeos/boot_ladder/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nifeos/boot_ladder/actions/workflows/ci.yml?query=branch%3Amain)
+[![proofs](https://github.com/nifeos/boot_ladder/actions/workflows/proofs.yml/badge.svg?branch=main)](https://github.com/nifeos/boot_ladder/actions/workflows/proofs.yml?query=branch%3Amain)
+[![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/nifeos/boot_ladder#license)
+[![minimum Rust version](https://img.shields.io/badge/rust-1.88%2B-blue.svg)](https://github.com/nifeos/boot_ladder/blob/main/Cargo.toml)
+
 The fixed heads of the lines a kernel and its shell print while booting, and the list of self-test
 check names. A program that reads a serial log, a CI transcript or a photograph of a screen then
 keys on the same bytes the kernel wrote. `no_std`, no dependencies, no `unsafe`.
@@ -81,8 +86,54 @@ against one version reads a log from an older kernel by those entries and no oth
 
 ```sh
 cargo test
-cargo build --lib --target x86_64-unknown-none   # also aarch64-unknown-none-softfloat, riscv64imac-unknown-none-elf
+rustup target add x86_64-unknown-none aarch64-unknown-none-softfloat riscv64imac-unknown-none-elf
+cargo build --lib --target x86_64-unknown-none
+cargo build --lib --target aarch64-unknown-none-softfloat
+cargo build --lib --target riscv64imac-unknown-none-elf
 ```
+
+The crate has no features and no dependencies, so a plain `cargo test` runs every unit test and
+doctest, the examples above included.
+
+### Running the proofs
+
+Install Kani first: run `cargo install --locked kani-verifier --version 0.68.0`, then
+`cargo kani setup`. Setup downloads a model checker and the Rust toolchain that Kani pins, so it
+needs network access, and `cargo install` compiles Kani from source. Then run every harness:
+
+```sh
+cargo kani
+```
+
+The two harnesses take about five and a half minutes and peak near 3.2 gigabytes of memory, as
+`/usr/bin/time -v cargo kani` measured on a shared 80-core x86_64 host. Almost all of the time is
+`a_segment_is_read_without_panicking`; `a_count_is_read_without_overflow` takes seconds. To run one
+harness, give its full path, because `--exact` refuses a bare name:
+
+```sh
+cargo kani --harness verdict::verification::a_count_is_read_without_overflow --exact
+```
+
+A passing run prints lines that look alarming and mean nothing. They are the `use of an unstable
+feature` warning, the `Found the following unsupported constructs` warning, and many `aborting
+path on assume(false)` lines, which are paths Kani discards on purpose. The answer is the last
+line, `Complete - 2 successfully verified harnesses, 0 failures, 2 total.`, and `cargo kani` exits
+0.
+
+### Running one falsification patch
+
+Each file in `falsifications/` applies a small defect that turns its harness red. Apply one,
+confirm the proof fails, then undo it with the same patch reversed:
+
+```sh
+patch -p1 --no-backup-if-mismatch < falsifications/verdict.verification.a_count_is_read_without_overflow.patch
+cargo kani --harness verdict::verification::a_count_is_read_without_overflow --exact
+patch -R -p1 --no-backup-if-mismatch < falsifications/verdict.verification.a_count_is_read_without_overflow.patch
+```
+
+The failing run prints `Failed Checks: attempt to multiply with overflow` and
+`VERIFICATION:- FAILED`. It ends with `Complete - 0 successfully verified harnesses, 1 failures, 1
+total.`, and `cargo kani` exits 1. Each patch's opening lines name the check it expects to fail.
 
 ## BUGS
 
@@ -97,7 +148,17 @@ cargo build --lib --target x86_64-unknown-none   # also aarch64-unknown-none-sof
 
 ## Minimum Rust version
 
-Rust 1.88.
+Rust 1.88. To check it, install the toolchain and its bare-metal targets, then run the tests and
+all three bare-metal builds with `+1.88`:
+
+```sh
+rustup toolchain install 1.88 --profile minimal
+rustup target add --toolchain 1.88 x86_64-unknown-none aarch64-unknown-none-softfloat riscv64imac-unknown-none-elf
+cargo +1.88 test
+cargo +1.88 build --lib --target x86_64-unknown-none
+cargo +1.88 build --lib --target aarch64-unknown-none-softfloat
+cargo +1.88 build --lib --target riscv64imac-unknown-none-elf
+```
 
 ## License
 
