@@ -105,8 +105,9 @@ needs network access, and `cargo install` compiles Kani from source. Then run ev
 cargo kani
 ```
 
-The two harnesses take about five and a half minutes and peak near 3.2 gigabytes of memory, as
-`/usr/bin/time -v cargo kani` measured on a shared 80-core x86_64 host. Almost all of the time is
+The two harnesses take five and a half to eight minutes, depending on the host's load, and peak
+near 3.2 gigabytes of memory, as `/usr/bin/time -v cargo kani` measured on a shared 80-core x86_64
+host. Almost all of the time is
 `a_segment_is_read_without_panicking`; `a_count_is_read_without_overflow` takes seconds. To run one
 harness, give its full path, because `--exact` refuses a bare name:
 
@@ -131,8 +132,8 @@ cargo kani --harness verdict::verification::a_count_is_read_without_overflow --e
 patch -R -p1 --no-backup-if-mismatch < falsifications/verdict.verification.a_count_is_read_without_overflow.patch
 ```
 
-The failing run prints `Failed Checks: attempt to multiply with overflow` and
-`VERIFICATION:- FAILED`. It ends with `Complete - 0 successfully verified harnesses, 1 failures, 1
+The failing run prints `Failed Checks: attempt to multiply with overflow`, then
+`Failed Checks: attempt to add with overflow`, and `VERIFICATION:- FAILED`. It ends with `Complete - 0 successfully verified harnesses, 1 failures, 1
 total.`, and `cargo kani` exits 1. Each patch's opening lines name the check it expects to fail.
 
 ## BUGS
