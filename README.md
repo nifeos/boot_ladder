@@ -1,9 +1,9 @@
 # boot_ladder
 
-[![check](https://github.com/nifeos/boot_ladder/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nifeos/boot_ladder/actions/workflows/ci.yml?query=branch%3Amain)
-[![proofs](https://github.com/nifeos/boot_ladder/actions/workflows/proofs.yml/badge.svg?branch=main)](https://github.com/nifeos/boot_ladder/actions/workflows/proofs.yml?query=branch%3Amain)
-[![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/nifeos/boot_ladder#license)
-[![minimum Rust version](https://img.shields.io/badge/rust-1.88%2B-blue.svg)](https://github.com/nifeos/boot_ladder/blob/main/Cargo.toml)
+[![check](https://github.com/partsfoundry/boot_ladder/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/partsfoundry/boot_ladder/actions/workflows/ci.yml?query=branch%3Amain)
+[![proofs](https://github.com/partsfoundry/boot_ladder/actions/workflows/proofs.yml/badge.svg?branch=main)](https://github.com/partsfoundry/boot_ladder/actions/workflows/proofs.yml?query=branch%3Amain)
+[![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/partsfoundry/boot_ladder#license)
+[![minimum Rust version](https://img.shields.io/badge/rust-1.88%2B-blue.svg)](https://github.com/partsfoundry/boot_ladder/blob/main/Cargo.toml)
 
 The fixed heads of the lines a kernel and its shell print while booting, and the list of self-test
 check names. A program that reads a serial log, a CI transcript or a photograph of a screen then
